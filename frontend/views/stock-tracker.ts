@@ -1,4 +1,4 @@
-import {LitElement, html, css, customElement, query} from 'lit-element';
+import {LitElement, html, css, customElement, property, query} from 'lit-element';
 import {render} from 'lit-html';
 import * as StockService from  '../generated/StockService';
 import '@vaadin/vaadin-grid';
@@ -18,7 +18,7 @@ export class StockTracker extends LitElement {
     render() {
         return html`
             <h1>StockTracker</h1>
-            <vaadin-grid id="grid">
+            <vaadin-grid .items="${this.items}">
                 <vaadin-grid-column path="symbol"></vaadin-grid-column>
                 <vaadin-grid-column path="price"></vaadin-grid-column>
                 <vaadin-grid-column id="percentageColumn" header="Percentage change"></vaadin-grid-column>
@@ -59,14 +59,14 @@ export class StockTracker extends LitElement {
 
     private stockAPIBaseUrl = 'https://financialmodelingprep.com/api/v3/quote/';
 
-    @query('#grid')
-    private grid: any;
-
     @query('#percentageColumn')
     private percentageColumn: any;
 
     @query("#stock-search")
     private stockSearchBox: any;
+
+    @property({ type: Array })
+    private items = [];
 
     firstUpdated() {
         this.percentageColumn.renderer = (root :any, _column: any, rowData: any) => {
@@ -96,7 +96,7 @@ export class StockTracker extends LitElement {
 
             fetch(url)
                 .then(result => result.json())
-                .then(jsonItems => this.grid.items = jsonItems);
+                .then(jsonItems => this.items = jsonItems);
         });
     }
 
