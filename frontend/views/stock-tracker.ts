@@ -17,7 +17,7 @@ export class StockTracker extends LitElement {
 
     render() {
         return html`
-            <h1>StockList</h1>
+            <h1>StockTracker</h1>
             <vaadin-grid id="grid">
                 <vaadin-grid-column path="symbol"></vaadin-grid-column>
                 <vaadin-grid-column path="price"></vaadin-grid-column>
