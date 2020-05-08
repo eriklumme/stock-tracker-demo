@@ -18,16 +18,16 @@ export class StockTracker extends LitElement {
     render() {
         return html`
             <h1>StockTracker</h1>
-            <vaadin-grid .items="${this.items}">
+            <vaadin-grid .items=${this.items}>
                 <vaadin-grid-column path="symbol"></vaadin-grid-column>
                 <vaadin-grid-column path="price"></vaadin-grid-column>
                 <vaadin-grid-column .renderer=${this._renderPercentage} header="Percentage change"></vaadin-grid-column>
-                <vaadin-grid-column text-align="end" .renderer="${this._removeButtonRenderer.bind(this)}"></vaadin-grid-column>
+                <vaadin-grid-column text-align="end" .renderer=${this.removeButtonRenderer}></vaadin-grid-column>
             </vaadin-grid>
             <vaadin-horizontal-layout theme="spacing" style="align-items: baseline">
                 <vaadin-combo-box 
                     @filter-changed=${this._onStockSearchStringChanged} 
-                    .render=${this._renderSearchBoxItems}
+                    .renderer=${this._renderSearchBoxItems}
                     id="stock-search" 
                     label="Search for a stock symbol"
                     item-label-path="symbol">
@@ -59,6 +59,10 @@ export class StockTracker extends LitElement {
     }
 
     private stockAPIBaseUrl = 'https://financialmodelingprep.com/api/v3/quote/';
+
+    private searchApiURL = 'https://financialmodelingprep.com/api/v3/search?query=<query>&exchange=NASDAQ';
+
+    private removeButtonRenderer: Function = this._renderRemoveButton.bind(this);
 
     @query("#stock-search")
     private stockSearchBox: any;
@@ -92,6 +96,13 @@ export class StockTracker extends LitElement {
         )
     }
 
+    _renderRemoveButton(root: any, _column: any, rowData: any) {
+        render(
+            html`<vaadin-button @click=${() => this._onRemoveFromList(rowData.item.symbol)}>Remove</vaadin-button>`,
+            root
+        );
+    }
+
     _updateGrid() {
         StockService.getStocks().then(stocks => {
 
@@ -103,8 +114,6 @@ export class StockTracker extends LitElement {
                 .then(jsonItems => this.items = jsonItems);
         });
     }
-
-    private searchApiURL = 'https://financialmodelingprep.com/api/v3/search?query=<query>&exchange=NASDAQ';
 
     _onStockSearchStringChanged(filterEvent: any) {
         let searchString = filterEvent.detail.value;
@@ -130,12 +139,5 @@ export class StockTracker extends LitElement {
 
     _onRemoveFromList(symbol: string) {
         StockService.removeStock({ symbol }).then(_ => this._updateGrid());
-    }
-
-    _removeButtonRenderer(root: any, _column: any, rowData: any) {
-        render(
-            html`<vaadin-button @click="${() => this._onRemoveFromList(rowData.item.symbol)}">Remove</vaadin-button>`,
-            root
-        );
     }
 }
