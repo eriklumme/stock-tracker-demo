@@ -1,3 +1,9 @@
+# The StockTracker demo app
+
+This is the repository for the [StockTracker demo application](https://medium.com/@erik.lumme/how-to-write-a-simple-stock-tracker-with-vaadin-15-using-java-and-typescript-90227bbf4925?source=friends_link&sk=b5156a7f83cc1be93e1a856bf5144379).
+
+The rest of this README is the original Vaadin starter readme.
+
 # Project Base for Vaadin and Spring Boot
 
 This project can be used as a starting point to create your own Vaadin application with Spring Boot.
