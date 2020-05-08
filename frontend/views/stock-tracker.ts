@@ -21,12 +21,13 @@ export class StockTracker extends LitElement {
             <vaadin-grid .items="${this.items}">
                 <vaadin-grid-column path="symbol"></vaadin-grid-column>
                 <vaadin-grid-column path="price"></vaadin-grid-column>
-                <vaadin-grid-column .renderer="${this._renderPercentage}" header="Percentage change"></vaadin-grid-column>
+                <vaadin-grid-column .renderer=${this._renderPercentage} header="Percentage change"></vaadin-grid-column>
                 <vaadin-grid-column text-align="end" .renderer="${this._removeButtonRenderer.bind(this)}"></vaadin-grid-column>
             </vaadin-grid>
             <vaadin-horizontal-layout theme="spacing" style="align-items: baseline">
                 <vaadin-combo-box 
                     @filter-changed=${this._onStockSearchStringChanged} 
+                    .render=${this._renderSearchBoxItems}
                     id="stock-search" 
                     label="Search for a stock symbol"
                     item-label-path="symbol">
@@ -66,14 +67,6 @@ export class StockTracker extends LitElement {
     private items = [];
 
     firstUpdated() {
-        this.stockSearchBox.renderer = (root: any, _comboBox: any, model: any) => {
-            root.innerHTML =
-                `<div class="search-box-item">
-                    <div class="symbol">${model.item.symbol}</div>
-                    <div class="name">${model.item.name}</div>
-                </div>`;
-        };
-
         this._updateGrid();
     }
 
@@ -86,6 +79,17 @@ export class StockTracker extends LitElement {
             html`<span class="percentage ${classString}">${prefix}${percentage}%</span>`,
             root
         );
+    }
+
+    _renderSearchBoxItems(root: any, _comboBox: any, model: any) {
+        render(
+            html`
+                <div class="search-box-item">
+                    <div class="symbol">${model.item.symbol}</div>
+                    <div class="name">${model.item.name}</div>
+                </div>`,
+            root
+        )
     }
 
     _updateGrid() {
