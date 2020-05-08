@@ -21,7 +21,7 @@ export class StockTracker extends LitElement {
             <vaadin-grid .items="${this.items}">
                 <vaadin-grid-column path="symbol"></vaadin-grid-column>
                 <vaadin-grid-column path="price"></vaadin-grid-column>
-                <vaadin-grid-column id="percentageColumn" header="Percentage change"></vaadin-grid-column>
+                <vaadin-grid-column .renderer="${this._renderPercentage}" header="Percentage change"></vaadin-grid-column>
                 <vaadin-grid-column text-align="end" .renderer="${this._removeButtonRenderer.bind(this)}"></vaadin-grid-column>
             </vaadin-grid>
             <vaadin-horizontal-layout theme="spacing" style="align-items: baseline">
@@ -59,9 +59,6 @@ export class StockTracker extends LitElement {
 
     private stockAPIBaseUrl = 'https://financialmodelingprep.com/api/v3/quote/';
 
-    @query('#percentageColumn')
-    private percentageColumn: any;
-
     @query("#stock-search")
     private stockSearchBox: any;
 
@@ -69,14 +66,6 @@ export class StockTracker extends LitElement {
     private items = [];
 
     firstUpdated() {
-        this.percentageColumn.renderer = (root :any, _column: any, rowData: any) => {
-            let percentage = rowData.item.changesPercentage;
-            let classString = percentage < 0 ? 'negative' : '';
-            let prefix = percentage < 0 ? '' : '+';
-
-            root.innerHTML = `<span class="percentage ${classString}">${prefix}${percentage}%</span>`;
-        };
-
         this.stockSearchBox.renderer = (root: any, _comboBox: any, model: any) => {
             root.innerHTML =
                 `<div class="search-box-item">
@@ -86,6 +75,17 @@ export class StockTracker extends LitElement {
         };
 
         this._updateGrid();
+    }
+
+    _renderPercentage(root: any, _column: any, rowData: any) {
+        let percentage = rowData.item.changesPercentage;
+        let classString = percentage < 0 ? 'negative' : '';
+        let prefix = percentage < 0 ? '' : '+';
+
+        render(
+            html`<span class="percentage ${classString}">${prefix}${percentage}%</span>`,
+            root
+        );
     }
 
     _updateGrid() {
