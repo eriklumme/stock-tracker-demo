@@ -21,18 +21,18 @@ export class StockTracker extends LitElement {
             <vaadin-grid .items=${this.items}>
                 <vaadin-grid-column path="symbol"></vaadin-grid-column>
                 <vaadin-grid-column path="price"></vaadin-grid-column>
-                <vaadin-grid-column .renderer=${this._renderPercentage} header="Percentage change"></vaadin-grid-column>
+                <vaadin-grid-column .renderer=${this.renderPercentage} header="Percentage change"></vaadin-grid-column>
                 <vaadin-grid-column text-align="end" .renderer=${this.removeButtonRenderer}></vaadin-grid-column>
             </vaadin-grid>
             <vaadin-horizontal-layout theme="spacing" style="align-items: baseline">
                 <vaadin-combo-box 
-                    @filter-changed=${this._onStockSearchStringChanged} 
-                    .renderer=${this._renderSearchBoxItems}
+                    @filter-changed=${this.onStockSearchStringChanged} 
+                    .renderer=${this.renderSearchBoxItems}
                     id="stock-search" 
                     label="Search for a stock symbol"
                     item-label-path="symbol">
                 </vaadin-combo-box>
-                <vaadin-button theme="primary" @click=${this._onAddToList}>Add stock</vaadin-button>
+                <vaadin-button theme="primary" @click=${this.onAddToList}>Add stock</vaadin-button>
             </vaadin-horizontal-layout>
         `;
     }
@@ -62,7 +62,7 @@ export class StockTracker extends LitElement {
 
     private searchApiURL = 'https://financialmodelingprep.com/api/v3/search?query=<query>&exchange=NASDAQ';
 
-    private removeButtonRenderer: Function = this._renderRemoveButton.bind(this);
+    private removeButtonRenderer: Function = this.renderRemoveButton.bind(this);
 
     @query("#stock-search")
     private stockSearchBox: any;
@@ -71,10 +71,10 @@ export class StockTracker extends LitElement {
     private items = [];
 
     firstUpdated() {
-        this._updateGrid();
+        this.updateGrid();
     }
 
-    _renderPercentage(root: any, _column: any, rowData: any) {
+    private renderPercentage(root: any, _column: any, rowData: any) {
         let percentage = rowData.item.changesPercentage;
         let classString = percentage < 0 ? 'negative' : '';
         let prefix = percentage < 0 ? '' : '+';
@@ -85,7 +85,7 @@ export class StockTracker extends LitElement {
         );
     }
 
-    _renderSearchBoxItems(root: any, _comboBox: any, model: any) {
+    private renderSearchBoxItems(root: any, _comboBox: any, model: any) {
         render(
             html`
                 <div class="search-box-item">
@@ -96,14 +96,14 @@ export class StockTracker extends LitElement {
         )
     }
 
-    _renderRemoveButton(root: any, _column: any, rowData: any) {
+    private renderRemoveButton(root: any, _column: any, rowData: any) {
         render(
-            html`<vaadin-button @click=${() => this._onRemoveFromList(rowData.item.symbol)}>Remove</vaadin-button>`,
+            html`<vaadin-button @click=${() => this.onRemoveFromList(rowData.item.symbol)}>Remove</vaadin-button>`,
             root
         );
     }
 
-    _updateGrid() {
+    private updateGrid() {
         StockService.getStocks().then(stocks => {
 
             let symbols = stocks.map(stock => stock.symbol).concat(',');
@@ -115,7 +115,7 @@ export class StockTracker extends LitElement {
         });
     }
 
-    _onStockSearchStringChanged(filterEvent: any) {
+    private onStockSearchStringChanged(filterEvent: any) {
         let searchString = filterEvent.detail.value;
         if (!searchString) {
             this.stockSearchBox.filteredItems  = [];
@@ -129,15 +129,15 @@ export class StockTracker extends LitElement {
             .then(jsonItems => this.stockSearchBox.filteredItems  = jsonItems);
     }
 
-    _onAddToList() {
+    private onAddToList() {
         let symbol = this.stockSearchBox.selectedItem?.symbol;
 
         if (symbol) {
-            StockService.addStock({ symbol }).then(_ => this._updateGrid());
+            StockService.addStock({ symbol }).then(_ => this.updateGrid());
         }
     }
 
-    _onRemoveFromList(symbol: string) {
-        StockService.removeStock({ symbol }).then(_ => this._updateGrid());
+    private onRemoveFromList(symbol: string) {
+        StockService.removeStock({ symbol }).then(_ => this.updateGrid());
     }
 }
